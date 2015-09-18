@@ -1,0 +1,11 @@
+<Alloy>	
+	<Tab id="tab" title="webpageURL">
+		<Window title="webpageURL" onFocus="createUserActivity" onBlur="invalidateActivity" layout="vertical">
+
+			<Label class="help">Double tap home on another iOS device or continue this activity form the lockscreen.\n\nYou should also be able to continue this activity on your Mac, where it will open this controller source in your default Web Browser.</Label>
+
+			<Label id="status" />
+
+		</Window>
+	</Tab>
+</Alloy>

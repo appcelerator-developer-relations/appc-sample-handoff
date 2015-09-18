@@ -1,0 +1,8 @@
+<Alloy>
+	<TabGroup>
+		<Require src="userInfo" />
+		<Require src="webpageURL" />
+		<Require src="watch" />
+		<Require src="console" />
+	</TabGroup>
+</Alloy>
