@@ -22,7 +22,7 @@ function onContinueactivity(e) {
 
 	log.args('Ti.App.iOS:continueactivity', e);
 
-	updateStatus('the continueactivity event was fired after continuing an activity from Apple Watch. See the logs for the payload.');
+	updateStatus('the continueactivity event was fired after continuing an activity from Apple Watch. See Console for details.');
 
 	// Make our tab active
 	$.tab.active = true;

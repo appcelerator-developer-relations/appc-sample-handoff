@@ -20,18 +20,19 @@ var activity;
 function onContinueactivity(e) {
 
 	// We only respond to the writing activity
-	if (e.activityType !== 'com.appcelerator.sample.handoff.userinfo') {
+	if (e.activityType !== 'com.appcelerator.sample.handoff.needssave') {
 		return;
 	}
 
 	log.args('Ti.App.iOS:continueactivity', e);
 
-	updateStatus('the continueactivity event was fired after continuing an activity from search or another device. The message should be updated with that of the search index or other device. (see logs for details)');
+	updateStatus('the continueactivity event was fired after continuing this activity from another device. The fields should be updated with that of the other device. See Console for details.');
 
 	// Make our tab active
 	$.tab.active = true;
 
-	// Update the body with the state of the user activity as it was handed off
+	// Update our content with activity handed off to us
+	$.win.title = e.title || '(untitled)';
 	$.title.value = e.title;
 	$.body.value = e.userInfo.body;
 }
@@ -47,11 +48,11 @@ function createUserActivity() {
 	var parameters = {
 
 		// This value needs to be defined in tiapp.xml
-		activityType: 'com.appcelerator.sample.handoff.userinfo',
+		activityType: 'com.appcelerator.sample.handoff.needssave',
 
-		title: 'New Document', // or take from TextField? Can we update it?
+		title: $.title.value,
 
-		// We'll receive this information when the activity is continued via handoff
+		// Custom payload a device will receive when it continues our activity
 		userInfo: {
 			body: $.body.value
 		}
@@ -61,10 +62,10 @@ function createUserActivity() {
 
 	log.args('Ti.App.iOS.createUserActivity()', parameters);
 
-	// Listen to event fired if the activity context needs to be saved before being continued on another device
+	// Listen to event fired before our activity is continued on another device so we can update its state.
 	activity.addEventListener('useractivitywillsave', onUseractivitywillsave);
 
-	// Listen to event fired when the user activity was continued on another device.
+	// Listen to event fired when our activity was continued on another device.
 	activity.addEventListener('useractivitywascontinued', onUseractivitywascontinued);
 
 	// Check if the user's OS version supports user activities
@@ -74,7 +75,7 @@ function createUserActivity() {
 		activity.becomeCurrent();
 
 	} else {
-		log.args('Did not call becomeCurrent() because activity.supported is:', activity.supported);
+		$.status.text = 'Your iOS version does not support this activity.';
 	}
 }
 
@@ -94,7 +95,7 @@ function invalidateActivity() {
 	activity.invalidate();
 	activity = null;
 
-	log.args('Ti.App.iOS.UserActivity#userInfo.invalidate()');
+	log.args('Ti.App.iOS.UserActivity#needsSave.invalidate()');
 }
 
 /**
@@ -103,7 +104,7 @@ function invalidateActivity() {
 function onUseractivitywillsave(e) {
 	log.args('Ti.App.iOS.UserActivity:useractivitywillsave', e);
 
-	updateStatus('the useractivitywillsave event was fired after setting needsSave to true. (see logs for details)');
+	updateStatus('the useractivitywillsave event was fired. See Console for details.');
 
 	activity.title = $.title.value;
 
@@ -111,7 +112,10 @@ function onUseractivitywillsave(e) {
 		body: $.body.value
 	};
 
-	log.args('Updated activity.userInfo.body:', activity.userInfo.body);
+	log.args('Updated activity:', {
+		title: activity.title,
+		userInfo: activity.userInfo
+	});
 }
 
 /**
@@ -120,17 +124,19 @@ function onUseractivitywillsave(e) {
 function onUseractivitywascontinued(e) {
 	log.args('Ti.App.iOS.UserActivity:useractivitywascontinued', e);
 
-	updateStatus('the useractivitywascontinued event was fired after continuing this activity on another device. The body on the other device should now be what you had up here. (see logs for details)');
+	updateStatus('the useractivitywascontinued event was fired after continuing this activity on another device. The fields on the other device should now be updated with what you had up here. See Console for details.');
 }
 
 function onChanges(e) {
 
-	$.win.title = $.title.value;
+	$.win.title = $.title.value || '(untitled)';
 
 	// Every (appropriate) time you set this to true the activity will receive
 	// the useractivitywillsave event where you can then update the activity so
 	// that when handed off, the other devices has the most recent information.
 	activity.needsSave = true;
+
+	log.args('Updated needsSave: true');
 }
 
 /**

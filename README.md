@@ -1,15 +1,3 @@
-- https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/Handoff
-- https://developer.apple.com/library/prerelease/ios/documentation/Foundation/Reference/NSUserActivity_Class/
-- http://docs.appcelerator.com/platform/latest/#!/guide/Handoff_User_Activities
-
-
-- https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/Handoff/AdoptingHandoff/AdoptingHandoff.html#//apple_ref/doc/uid/TP40014338-CH2-SW10
-- Handoff is device to device, not via cloud (see image)
-
-When the system needs the activity to be updated, such as before the activity is continued on another device, it calls the delegate’s userActivityWillSave: method. You can implement this callback to make updates to the object’s data-bearing properties such as userInfo, title, and so on. Once the system calls this method, it resets needsSave to NO. Change this value to YES if something happens that changes the userInfo or other data-bearing properties again.
-
-
-
 # iOS Handoff Sample App
 
 This sample app demonstrates how to use Handoff introduced in iOS 8 and supported by Titanium 5.0. Handoff lets you start using an application, such as editing a document, on one device, then transfer to another device to continue working on it.
@@ -22,33 +10,143 @@ For the complete details on how exactly Handoff works and how you can implement 
 
 ## Handoff scenarios
 
-* Handoff iOS app to iOS app
-* Handoff iOS app to Web Browser (including desktop)
-* [Handoff Web Browser to iOS app](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/Handoff/AdoptingHandoff/AdoptingHandoff.html#//apple_ref/doc/uid/TP40014338-CH2-SW10)
-* [Handoff Apple Watch App to iOS App or Web Browser](https://developer.apple.com/library/ios/documentation/General/Conceptual/WatchKitProgrammingGuide/iOSSupport.html)
-* [Handoff Apple Watch Glance to Apple Watch App](https://developer.apple.com/library/ios/documentation/General/Conceptual/WatchKitProgrammingGuide/TheGlanceController.html#//apple_ref/doc/uid/TP40014969-CH16-SW4)
+Handoff is not just about continuity between two identical apps on two iOS devices. There are many other scenarios, including handoff between an Native App and Web Browser where *Native App* can be either an iOS or Max OS X App.
 
-### Updating an activity's state for Handoff
-Our sample app has another *UserActivity* tab to demonstrate another feature related to Handoff. While viewing information on one of the Beatles is as static as it gets, handoff is often used for activities that do change, like starting an email on your iPhone and continue it on your iPad.
+1. [Handoff Native App to Native app](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/Handoff/AdoptingHandoff/AdoptingHandoff.html#//apple_ref/doc/uid/TP40014338-CH2-SW3)
+2. [Handoff Native App to Web Browser](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/Handoff/AdoptingHandoff/AdoptingHandoff.html#//apple_ref/doc/uid/TP40014338-CH2-SW21)
+3. [Handoff Web Browser to Native App](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/Handoff/AdoptingHandoff/AdoptingHandoff.html#//apple_ref/doc/uid/TP40014338-CH2-SW10)
+4. [Handoff Apple Watch App to Native App or Web Browser](https://developer.apple.com/library/ios/documentation/General/Conceptual/WatchKitProgrammingGuide/iOSSupport.html)
+5. [Handoff Apple Watch Glance to Apple Watch App](https://developer.apple.com/library/ios/documentation/General/Conceptual/WatchKitProgrammingGuide/TheGlanceController.html#//apple_ref/doc/uid/TP40014969-CH16-SW4)
 
-At first sight the [useractivity.js](app/controllers/useractivity.js) controller is very similar to [detail.js](app/controllers/detail.js). Notice that time we did not use a *SearchableItemAttributeSet* to describe our activity but used the [subset of descriptors](http://docs.appcelerator.com/platform/latest/#!/api/Titanium.App.iOS.UserActivity-property-keywords) available directly via the UserActivity object. Search for *appsearch* in Spotlight and you should still find the activity but with no description or custom image this time.
+This sample will cover scenarios 1, 2 and 4 for iOS Apps only. Follow the links for Apple guides on the other two scenarios.
 
-Every time you make a change to the message in the TextArea, [we set](app/controllers/useractivity.js#L166) the activity's `needsSave` property to `true` to tell iOS we want to be able to update the activity state before it might be handed off to another device. For this, we've added a listener to the activity's `useractivitywillsave` event which you can find near [line #120](app/controllers/useractivity.js#L120). Here we simply update the `userInfo` property.
+## Handoff flowchart
 
-> **NOTE:** Just like `Ti.UI.View.font` you need to set the full `userInfo` object.
-
-Just like we did for the Beatles we receive the handoff on the other by listening to the `continueactivity` event on [lines 18-42](app/controllers/useractivity.js#L18). Finally, the activity on the first device will receive the `useractivitywascontinued` event. This where you'd inform the user or maybe even lock the view to prevent further changes ([lines 140-146](app/controllers/useractivity.js#L140)).
-
-They say a picture says more then 1000 lines of code:
+They say a flowchart says more then 1000 lines of code:
 
 ![flowchart](docs/flowchart.png)
 
-Give it a try! Install the sample app on two iOS 8+ devices, change the message on the first one, then double tap home or lock the other to request a handoff and continue the message there.
+The above figure shows how every time a change requires the activity state to be updated, its `needsSave` property must be set to `true`. It is then up to iOS when it will fire the `useractivitywillsave` event, but this should at least happen directly after you've called the activity's `becomeCurrent()` method and before it is handed off to another device. This allows you actually update the activity's `title`, `userInfo` and `webpageURL` properties. iOS will then fire the `continueactivity` event on the device that requested the Handoff, followed by `useractivitywascontinued` on the sending device. If your activity's state doesn't change while it is current, you only have to implement the `continueactivity` event.
 
-## Web Markup & Universal Links
-Since our sample is not in the App Store I cannot demonstrate [how to combine](https://developer.apple.com/library/prerelease/ios/documentation/General/Conceptual/AppSearch/CombiningAPIs.html#//apple_ref/doc/uid/TP40016308-CH10-SW1) the UserActivity and Spotlight APIs with Web Markup and Universal Links. Fortunately, Apple has a [excellent guide](https://developer.apple.com/library/prerelease/ios/documentation/General/Conceptual/AppSearch/WebContent.html) on this topic. As discussed, our sample *does* show how to link a User Activity with a Spotlight item using `relatedUniqueIdentifier` and how to link both to a web activity using `webpageURL`. The rest... is up to you!
+> **NOTE:** Since iOS 9 GA I've seen that although I updated an activity via `useractivitywillsave` the payload received via `continueactivity` still contained the previous state. This seems like a change/bug introduced after the last GM.
 
-When you're done, use the [App Search API Validation Tool](https://search.developer.apple.com/appsearch-validation-tool).
+## iOS App to iOS App
+
+The [needsSave](app/controllers/needsSave.js) tab demonstrates the use of the `needsSave` property and `useractivitywillsave` event to update the activity state before it is handed off to the same iOS app on another device.
+
+### Creating and invalidating the activity
+
+Open the [view](app/views/needsSave.xml) to see that we create and call `becomeCurrent()` on the user activity when the window (tab) receives focus and invalidate the activity when it looses focus.
+
+A short version of the [controller code](app/controllers/needsSave.js#L40) starting around line 40:
+
+	activity = Ti.App.iOS.createUserActivity({
+		activityType: 'com.appcelerator.sample.handoff.needssave',
+		title: $.title.value,
+		userInfo: {
+			body: $.body.value
+		}
+	});
+	
+	activity.addEventListener('useractivitywillsave', onUseractivitywillsave);
+	activity.addEventListener('useractivitywascontinued', onUseractivitywascontinued);
+
+	if (activity.supported) {
+		activity.becomeCurrent();
+	}
+
+The above code will publish your activity to all connected iOS and Mac OS X devices.
+
+> **NOTE:** The activityType is usually a reverse company (if you handoff between different apps) or app domain plus a present continuous verb and needs to be registered in the [tiapp.xml](tiapp.xml#L20)'s `<ios><plist><dict>` section.
+	
+### Sending for Handoff
+The two event listeners we added in the previous snippet are optional, but allow us to prepare our activity before it is handed off and handle stuff afterwards.
+
+You can find the related code starting at [line 100](app/controllers/needsSave.js#L100). You can change the activity's `title`, `userInfo` and `webpageURL` properties.
+
+	function onUseractivitywillsave(e) {
+		activity.title = $.title.value;
+		activity.userInfo = {
+			body: $.body.value
+		};
+	}
+
+> **NOTE:** Just like `Ti.UI.View.font` you need to set the full `userInfo` object.
+
+### Receiving a Handoff
+On the other end we need to listen to the global `Ti.App.iOS:continueactivity` event which will fire for all continued actives as well when the user opens a Spotlight result for the app.
+
+As you can see in the first lines of the [controller](app/controllers/needsSave.js) this means we have to check for the `activityType` we want to act on. In this case we we make our tab active and update the fields with the received activity state:
+
+	Ti.App.iOS.addEventListener('continueactivity', onContinueactivity);
+	
+	function onContinueactivity(e) {
+
+		if (e.activityType !== 'com.appcelerator.sample.handoff.needssave') {
+			return;
+		}
+	
+		$.tab.active = true;
+	
+		$.win.title = e.title || '(untitled)';
+		$.title.value = e.title;
+		$.body.value = e.userInfo.body;
+	}
+
+### Try it out!
+To test this scenario, install the sample on two iOS devices that meet [Apple's requirements](https://support.apple.com/en-us/HT204681). Now change the fields on the first device. Then double tap home (iOS 9) or lock the other device to see the Handoff bar or icon appear. Tap it and the app should open and update the fields using the received activity state.
+
+![screenshot](docs/handoff.png)
+
+## iOS App to Web Browser
+The [webpageURL](app/controllers/webpageURL.js) tab demonstrates the use of the `webpageURL` property to support Handoff from an iOS app to a Web Browser on another iOS or Mac OS X device.
+
+Again, we create and invalidate a user activity in the same way as our previous tab. This time we don't use the `userInfo` and `needsSave` properties or the `useractivitywillsave` event because our activity state won't change.
+
+We do set the `webpageURL` property to the GitHub URL for the controller's source code. We also listen to the `useractivitywascontinued` event to demonstrate that even when you continue an activity in a Web Browser the app will still be notified. the browser however will **not** receive any information on the activity so all information you need must be in the URL.
+
+### Try it out!
+To test this scenario, install the sample on an iOS device and navigate to the *webpageURL* tab. On other iOS devices that do not have the iOS app you should see the Handoff bar or icon appear. This time it will have the icon and name of your default browser - *Safari* on iOS. Tap it to open the URL.
+
+![screenshot](docs/handoff_ios_safari.png)
+
+On Mac OS X devices that meet [Apple's requirements](https://support.apple.com/en-us/HT204681) you should see the default browser's icon in a special Handoff extension to the Dock. A small icon indicates that it comes from an iOS device. Click to open the URL.
+
+![screenshot](docs/handoff_ios_mac.png)
+
+## Apple Watch App to iOS App or Web Browser
+The [WatchApp](app/controllers/watch.js) tab and the bundled [WatchApp Extension](extensions/Handoff/Handoff WatchApp Extension/InterfaceController.m) demonstrates Handoff from an Apple Watch App to an iOS App or Web Browser on another iOS or Mac OS X device.
+
+### Creating an activity in the WatchApp
+This time we don't create an activity in the iOS app but in the bundled extension. Just [Apple's reference](https://developer.apple.com/library/ios/documentation/WatchKit/Reference/WKInterfaceController_class/index.html#//apple_ref/occ/instm/WKInterfaceController/updateUserActivity:userInfo:webpageURL:) to create and invalidate an activity when the WatchApp activates and deactivates, as shown in our [InterfaceController](extensions/Handoff/Handoff WatchApp Extension/InterfaceController.m).
+
+	- (void)willActivate {
+	    [super willActivate];
+	    
+	    [self updateUserActivity:@"com.appcelerator.sample.handoff.watching"
+	                    userInfo:@{@"foo":@"bar"}
+	                  webpageURL:[NSURL URLWithString:@"https://github.com/appcelerator-developer-relations/appc-sample-handoff/blob/master/extensions/Handoff/Handoff%20WatchApp%20Extension/InterfaceController.m"]];
+	}
+	
+	- (void)didDeactivate {
+	    [super didDeactivate];
+	    
+	    [self invalidateUserActivity];
+	}
+
+> **NOTE:** I use Objective-C, but the reference shows you how to do it in Swift.
+
+### Receiving the Handoff in the iOS App
+All we do in the [watch.js](app/controllers/watch.js) controller is again listen to the global `Ti.App.iOS:continueactivity` event and check for the `activityType` that we've set in the WatchApp. In this case we simply log the payload and display a message.
+
+### Receiving the Handoff in a Web Browser
+The paired iOS device of course has the app installed, but any other iOS or Mac OS X device that meets [Apple's requirements](https://support.apple.com/en-us/HT204681) will be able to open the activity in the Web Browser because we've set the `webpageURL` to the source code of the interface controller on GitHub.
+
+![screenshot](docs/handoff_watch_ios.png)
+
+As you can see on the Mac the small icon now shows an Apple Watch:
+
+![screenshot](docs/handoff_watch_mac.png)
 
 ## Links
 

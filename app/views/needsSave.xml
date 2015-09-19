@@ -1,0 +1,13 @@
+<Alloy>	
+	<Tab id="tab" title="needsSave">
+		<Window id="win" title="New Document" onFocus="createUserActivity" onBlur="invalidateActivity" layout="vertical">
+
+			<TextField id="title" class="input" onChange="onChanges" value="New Document" />
+
+			<TextArea id="body" class="input" onChange="onChanges" value="Double tap home on another iOS device or continue this activity form the lockscreen." />
+
+			<Label id="status" />
+
+		</Window>
+	</Tab>
+</Alloy>

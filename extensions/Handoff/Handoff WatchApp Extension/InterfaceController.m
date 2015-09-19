@@ -29,7 +29,7 @@
     // Publish the activity of watching our WatchApp
     [self updateUserActivity:@"com.appcelerator.sample.handoff.watching"
                     userInfo:@{@"foo":@"bar"}
-                  webpageURL:[NSURL URLWithString:@"http://www.appcelerator.com"]];
+                  webpageURL:[NSURL URLWithString:@"https://github.com/appcelerator-developer-relations/appc-sample-handoff/blob/master/extensions/Handoff/Handoff%20WatchApp%20Extension/InterfaceController.m"]];
 }
 
 - (void)didDeactivate {

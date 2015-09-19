@@ -25,7 +25,7 @@ function onContinueactivity(e) {
 
 	log.args('Ti.App.iOS:continueactivity', e);
 
-	updateStatus('the continueactivity event was fired after continuing this activity from another device.');
+	updateStatus('the continueactivity event was fired after continuing this activity from another device. See Console for details.');
 
 	// Make our tab active
 	$.tab.active = true;
@@ -44,14 +44,16 @@ function createUserActivity() {
 		// This value needs to be defined in tiapp.xml
 		activityType: 'com.appcelerator.sample.handoff.webpageurl',
 
-		webpageURL: 'https://github.com/appcelerator-developer-relations/appc-sample-handoff'
+		title: 'webpageURL',
+
+		webpageURL: 'https://github.com/appcelerator-developer-relations/appc-sample-handoff/blob/master/app/controllers/webpageURL.js'
 	};
 
 	activity = Ti.App.iOS.createUserActivity(parameters);
 
 	log.args('Ti.App.iOS.createUserActivity()', parameters);
 
-	// Listen to event fired when the user activity was continued on another device.
+	// Listen to event fired when our activity was continued on another device
 	activity.addEventListener('useractivitywascontinued', onUseractivitywascontinued);
 
 	// Check if the user's OS version supports user activities
@@ -61,7 +63,7 @@ function createUserActivity() {
 		activity.becomeCurrent();
 
 	} else {
-		log.args('Did not call becomeCurrent() because activity.supported is:', activity.supported);
+		$.status.text = 'Your iOS version does not support this activity.';
 	}
 }
 
@@ -75,6 +77,8 @@ function invalidateActivity() {
 		return;
 	}
 
+	activity.removeEventListener('useractivitywascontinued', onUseractivitywascontinued);
+
 	activity.invalidate();
 	activity = null;
 
@@ -87,7 +91,7 @@ function invalidateActivity() {
 function onUseractivitywascontinued(e) {
 	log.args('Ti.App.iOS.UserActivity:useractivitywascontinued', e);
 
-	updateStatus('the useractivitywascontinued event was fired after continuing this activity on another device.');
+	updateStatus('the useractivitywascontinued event was fired after continuing this activity on another device. See Console for details.');
 }
 
 function updateStatus(text) {

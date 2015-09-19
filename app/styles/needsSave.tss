@@ -1,9 +1,7 @@
-'TextArea': {
+'.input': {
 	top: 25,
 	right: 25,
 	left: 25,
-
-	height: 100,
 
 	borderWidth: 1,
 	borderColor: '#999',
@@ -11,6 +9,17 @@
 	font: {
 		fontSize: 15
 	}
+}
+
+'TextField': {
+	height: 40,
+
+	paddingLeft: 5,
+	paddingRight: 5
+}
+
+'TextArea': {
+	height: 100
 }
 
 '#status': {

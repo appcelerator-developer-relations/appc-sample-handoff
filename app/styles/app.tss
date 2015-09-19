@@ -43,16 +43,12 @@ overrode the settings with other TSS, XML, or JS settings:
 	}
 }
 
-// All our ScrollViews are layed out and scroll vertical
-'ScrollView': {
-	layout: 'vertical',
-	contentWidth: Ti.UI.FILE,
-	contentHeight: Ti.UI.SIZE
-}
-
-'.help': {
-	color: '#999',
+'Label': {
 	font: {
 		fontSize: 15
 	}
+}
+
+'.help': {
+	color: '#999'
 }

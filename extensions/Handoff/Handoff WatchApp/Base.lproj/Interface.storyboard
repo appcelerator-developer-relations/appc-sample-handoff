@@ -10,7 +10,7 @@
             <objects>
                 <controller id="AgC-eL-Hgc" customClass="InterfaceController">
                     <items>
-                        <label width="1" alignment="center" verticalAlignment="center" text="Double tap home on your iPhone or continue the activity from the lockscreen or even on your Mac." textAlignment="center" numberOfLines="0" id="LHM-6g-e2O">
+                        <label width="1" alignment="center" verticalAlignment="center" text="Double tap home on your iPhone or continue the activity from the lockscreen or even on your Mac in a Web Browser." textAlignment="center" numberOfLines="0" id="LHM-6g-e2O">
                             <color key="textColor" red="1" green="1" blue="1" alpha="0.59999999999999998" colorSpace="calibratedRGB"/>
                             <fontDescription key="font" style="UICTFontTextStyleSubhead"/>
                         </label>
