@@ -28,8 +28,6 @@ They say a flowchart says more then 1000 lines of code:
 
 The above figure shows how every time a change requires the activity state to be updated, its `needsSave` property must be set to `true`. It is then up to iOS when it will fire the `useractivitywillsave` event, but this should at least happen directly after you've called the activity's `becomeCurrent()` method and before it is handed off to another device. This allows you actually update the activity's `title`, `userInfo` and `webpageURL` properties. iOS will then fire the `continueactivity` event on the device that requested the Handoff, followed by `useractivitywascontinued` on the sending device. If your activity's state doesn't change while it is current, you only have to implement the `continueactivity` event.
 
-> **NOTE:** Since iOS 9 GA I've seen that although I updated an activity via `useractivitywillsave` the payload received via `continueactivity` still contained the previous state. This seems like a change/bug introduced after the last GM.
-
 ## iOS App to iOS App
 
 The [needsSave](app/controllers/needsSave.js) tab demonstrates the use of the `needsSave` property and `useractivitywillsave` event to update the activity state before it is handed off to the same iOS app on another device.
@@ -61,6 +59,8 @@ The above code will publish your activity to all connected iOS and Mac OS X devi
 	
 ### Sending for Handoff
 The two event listeners we added in the previous snippet are optional, but allow us to prepare our activity before it is handed off and handle stuff afterwards.
+
+> **NOTE:** There is a [known issue](https://jira.appcelerator.org/browse/TIMOB-19567) that sometimes the updates in `useractivitywillsave` don't make it to the other device in time. To workaround (also) update the activity where you set `needsSave:true`.
 
 You can find the related code starting at [line 100](app/controllers/needsSave.js#L100). You can change the activity's `title`, `userInfo` and `webpageURL` properties.
 
@@ -118,7 +118,7 @@ On Mac OS X devices that meet [Apple's requirements](https://support.apple.com/e
 The [WatchApp](app/controllers/watch.js) tab and the bundled [WatchApp Extension](extensions/Handoff/Handoff WatchApp Extension/InterfaceController.m) demonstrates Handoff from an Apple Watch App to an iOS App or Web Browser on another iOS or Mac OS X device.
 
 ### Creating an activity in the WatchApp
-This time we don't create an activity in the iOS app but in the bundled extension. Just [Apple's reference](https://developer.apple.com/library/ios/documentation/WatchKit/Reference/WKInterfaceController_class/index.html#//apple_ref/occ/instm/WKInterfaceController/updateUserActivity:userInfo:webpageURL:) to create and invalidate an activity when the WatchApp activates and deactivates, as shown in our [InterfaceController](extensions/Handoff/Handoff WatchApp Extension/InterfaceController.m).
+This time we don't create an activity in the iOS app but in the bundled extension. Just use [Apple's reference](https://developer.apple.com/library/ios/documentation/WatchKit/Reference/WKInterfaceController_class/index.html#//apple_ref/occ/instm/WKInterfaceController/updateUserActivity:userInfo:webpageURL:) to create and invalidate an activity when the WatchApp activates and deactivates, as shown in our [InterfaceController](extensions/Handoff/Handoff WatchApp Extension/InterfaceController.m).
 
 	- (void)willActivate {
 	    [super willActivate];
