@@ -148,6 +148,9 @@ As you can see on the Mac the small icon now shows an Apple Watch:
 
 ![screenshot](docs/handoff_watch_mac.png)
 
+## Thanks
+Thanks to Titanium developer Ben Bahrenburg for [his PR](https://github.com/appcelerator/titanium_mobile/pull/6942) to add support for Handoff to Titanium!
+
 ## Links
 
 * [Appcelerator Handoff User Activities Guide](http://docs.appcelerator.com/platform/latest/#!/guide/Handoff_User_Activities)
