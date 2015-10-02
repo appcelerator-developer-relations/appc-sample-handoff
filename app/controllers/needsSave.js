@@ -137,6 +137,13 @@ function onChanges(e) {
 	activity.needsSave = true;
 
 	log.args('Updated needsSave: true');
+
+	// FIXME: https://jira.appcelerator.org/browse/TIMOB-19567
+	// Currently, updating in useractivitywillsave might not always make it to the other device in time
+	activity.title = $.title.value;
+	activity.userInfo = {
+		body: $.body.value
+	};
 }
 
 /**
