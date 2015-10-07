@@ -131,19 +131,19 @@ function onChanges(e) {
 
 	$.win.title = $.title.value || '(untitled)';
 
-	// Every (appropriate) time you set this to true the activity will receive
-	// the useractivitywillsave event where you can then update the activity so
-	// that when handed off, the other devices has the most recent information.
-	activity.needsSave = true;
-
-	log.args('Updated needsSave: true');
-
 	// FIXME: https://jira.appcelerator.org/browse/TIMOB-19567
 	// Currently, updating in useractivitywillsave might not always make it to the other device in time
 	activity.title = $.title.value;
 	activity.userInfo = {
 		body: $.body.value
 	};
+
+	// Every (appropriate) time you set this to true the activity will receive
+	// the useractivitywillsave event where you can then update the activity so
+	// that when handed off, the other devices has the most recent information.
+	activity.needsSave = true;
+
+	log.args('Updated needsSave: true');
 }
 
 /**
